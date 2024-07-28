@@ -2,10 +2,10 @@
 """ State Module for HBNB project """
 from models.base_model import BaseModel, Base
 from sqlalchemy import Column, String
-from models import storage_ob
 from sqlalchemy.orm import relationship
-from models.city import City
+from models import storage_ob
 import models
+from models.city import City
 
 
 class State(BaseModel, Base):
@@ -13,7 +13,8 @@ class State(BaseModel, Base):
     if storage_ob == 'db':
         __tablename__ = "states"
         name = Column(String(128), nullable=False)
-        cities = relationship("City", backref="state")
+        cities = relationship("City", backref="state",
+                              cascade="all, delete-orphan")
     else:
         name = ""
 
@@ -21,13 +22,12 @@ class State(BaseModel, Base):
         """Initializes user"""
         super().__init__(*args, **kwargs)
 
-    # getter method
     @property
-    def cities(self):
+    def cities_list(self):
         """return the cities"""
         if storage_ob != 'db':
-            cities = models.storage.all(City)
-            cities_status = [c for c in cities.values() 
+            all_cities = models.storage.all(City)
+            cities_status = [c for c in all_cities.values() 
                              if c.state_id == self.id]
             return cities_status
         return []
